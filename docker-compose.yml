@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      target: base
+    env_file: .env
+    environment:
+      - BUNDLE_RUBYGEMS__PKG__GITHUB__COM
+    tty: true
+    command: "rails s -b 0.0.0.0"
+    volumes:
+      - ./:/app
+      - bundle:/usr/local/bundle
+    depends_on:
+      - db
+    ports:
+      - 3000:3000
+
+  db:
+    image: public.ecr.aws/docker/library/postgres:13-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+volumes:
+  dbdata:
+  bundle:
