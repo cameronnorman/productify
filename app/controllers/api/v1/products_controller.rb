@@ -3,7 +3,7 @@
 module Api
   module V1
     class ProductsController < ApplicationController
-      before_action :set_product, only: %i[show edit update destroy]
+      before_action :set_product, only: %i[show edit update destroy assign_product_details]
 
       def index
         @products = Product.all
@@ -25,7 +25,7 @@ module Api
       end
 
       def update
-        if @product.update(product_params)
+        if @product.update(name: product_params[:name])
           render json: @product, status: :ok
         else
           render json: @product.errors, status: :unprocessable_entity
@@ -35,6 +35,14 @@ module Api
       def destroy
         @product.destroy
         head :no_content
+      end
+
+      def assign_product_details
+        if @product.update(product_details: [product_params[:product_details].first])
+          render json: @product, status: :ok
+        else
+          render json: @product.errors, status: :unprocessable_entity
+        end
       end
 
       private
@@ -48,7 +56,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def product_params
-        params.require(:product).permit(:name)
+        params.require(:data).permit(:name, product_details: [])
       end
     end
   end
